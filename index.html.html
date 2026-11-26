@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Entrenador de Examen: Fisiología (15 Preguntas)</title>
+    <style>
+        :root {
+            --bg-primary: #0b0e14;
+            --bg-secondary: #131822;
+            --bg-card: #1a2130;
+            --bg-card-back: #151d2b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.15);
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.15);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.15);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.15);
+            --border: #263145;
+            --shadow: 0 14px 34px -6px rgba(0, 0, 0, 0.7);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 14px;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 780px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+
+        header {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+        }
+
+        .timer-badge {
+            background: var(--danger-bg);
+            border-color: var(--danger);
+            color: #fca5a5;
+            font-variant-numeric: tabular-nums;
+            display: none;
+        }
+
+        .timer-badge.active {
+            display: inline-block;
+        }
+
+        .mode-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            background: var(--bg-secondary);
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 8px 6px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .tab-btn.active {
+            background: var(--bg-card);
+            color: var(--accent);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: var(--bg-secondary);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #818cf8);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .btn-chip {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .btn-chip:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .btn-chip.active {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .view-section {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            gap: 12px;
+        }
+
+        .view-section.active {
+            display: flex;
+        }
+
+        .card-wrapper {
+            width: 100%;
+            min-height: 440px;
+            position: relative;
+        }
+
+        .card-face {
+            width: 100%;
+            min-height: 440px;
+            border-radius: 18px;
+            padding: 22px;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            gap: 14px;
+        }
+
+        .card-face.visible {
+            display: flex;
+            animation: fadeIn 0.22s ease;
+        }
+
+        .card-front {
+            background: linear-gradient(155deg, var(--bg-card), #141a26);
+        }
+
+        .card-back {
+            background: linear-gradient(155deg, var(--bg-card-back), #111824);
+            border-color: rgba(56, 189, 248, 0.35);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .topic-tag {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .card-back .topic-tag {
+            color: var(--accent);
+        }
+
+        .card-actions-mini {
+            display: flex;
+            gap: 6px;
+        }
+
+        .question-box {
+            font-size: 1.24rem;
+            font-weight: 600;
+            line-height: 1.45;
+            color: #ffffff;
+            padding: 10px 4px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .recall-box {
+            background: rgba(11, 14, 20, 0.55);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .recall-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .textarea-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 78px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            padding: 10px 42px 10px 12px;
+            font-family: inherit;
+            font-size: 0.92rem;
+            line-height: 1.4;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--accent);
+        }
+
+        .mic-btn {
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .mic-btn.recording {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+            animation: pulse 1.2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .recall-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-verify {
+            background: var(--accent);
+            color: #08101c;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .btn-verify:hover {
+            background: #7dd3fc;
+        }
+
+        .feedback-panel {
+            display: none;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .feedback-panel.visible {
+            display: flex;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+        }
+
+        .kw-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .kw-pill {
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.76rem;
+            font-weight: 600;
+        }
+
+        .kw-hit {
+            background: var(--success-bg);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+        }
+
+        .kw-miss {
+            background: var(--danger-bg);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+        }
+
+        .hint-box {
+            background: var(--warning-bg);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            color: #fcd34d;
+            padding: 9px 12px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            display: none;
+        }
+
+        .hint-box.visible {
+            display: block;
+        }
+
+        .answer-box {
+            font-size: 1.05rem;
+            line-height: 1.65;
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .answer-box strong {
+            color: var(--accent);
+        }
+
+        .trap-highlight {
+            background: rgba(250, 204, 21, 0.22);
+            color: #fde047;
+            border-bottom: 2px solid #eab308;
+            padding: 0 4px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .cloze-blank {
+            display: inline-block;
+            min-width: 74px;
+            background: #273349;
+            color: transparent;
+            border: 1px dashed var(--accent);
+            border-radius: 6px;
+            padding: 0 8px;
+            margin: 0 2px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+        }
+
+        .cloze-blank.revealed {
+            background: var(--accent-glow);
+            color: var(--accent);
+            border-style: solid;
+            font-weight: 700;
+        }
+
+        .srs-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+        }
+
+        .srs-label {
+            font-size: 0.76rem;
+            color: var(--text-secondary);
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .srs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .btn-srs {
+            padding: 10px 8px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: transform 0.15s;
+        }
+
+        .btn-srs:active { transform: scale(0.97); }
+
+        .srs-hard {
+            background: var(--danger-bg);
+            color: #fca5a5;
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .srs-med {
+            background: var(--warning-bg);
+            color: #fcd34d;
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+
+        .srs-easy {
+            background: var(--success-bg);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .bottom-nav {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-nav {
+            padding: 13px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-nav.flip-main {
+            background: var(--bg-card);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .cheatsheet-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-bottom: 24px;
+        }
+
+        .cs-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .cs-q {
+            font-weight: 700;
+            font-size: 0.98rem;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .cs-a {
+            font-size: 0.92rem;
+            line-height: 1.55;
+            color: #cbd5e1;
+            border-top: 1px solid var(--border);
+            padding-top: 8px;
+        }
+
+        .cs-a.blurred {
+            filter: blur(6px);
+            user-select: none;
+            cursor: pointer;
+        }
+
+        .exam-summary {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .big-score {
+            font-size: 2.4rem;
+            font-weight: 800;
+            text-align: center;
+            color: var(--accent);
+        }
+
+        .exam-review-item {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 0.86rem;
+            border-left: 4px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .exam-review-item.pass { border-left-color: var(--success); }
+        .exam-review-item.fail { border-left-color: var(--danger); }
+
+        @media (max-width: 600px) {
+            .question-box { font-size: 1.1rem; }
+            .answer-box { font-size: 0.98rem; }
+            .card-face { padding: 16px; min-height: 410px; }
+            .card-wrapper { min-height: 410px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <div class="top-bar">
+            <h1>🧠 Fisiología: Prep. Examen Viernes</h1>
+            <div style="display:flex; gap:6px; align-items:center;">
+                <span class="badge timer-badge" id="examTimer">15:00</span>
+                <span class="badge" id="counterBadge">1 / 15</span>
+            </div>
+        </div>
+
+        <div class="mode-tabs">
+            <button type="button" class="tab-btn active" id="tabStudy">🎴 Estudio Activo</button>
+            <button type="button" class="tab-btn" id="tabExam">⏱️ Simulacro 15/15</button>
+            <button type="button" class="tab-btn" id="tabSheet">📋 Hoja Repaso</button>
+        </div>
+
+        <div class="progress-container" id="progressWrap">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="toolbar" id="studyToolbar">
+            <div class="toolbar-group">
+                <button type="button" class="btn-chip" id="btnShuffle">🔀 Mezclar</button>
+                <button type="button" class="btn-chip" id="btnFilterHard">🔥 Repasar difíciles (<span id="hardCount">0</span>)</button>
+                <button type="button" class="btn-chip" id="btnTraps">⚡ Trampas</button>
+                <button type="button" class="btn-chip" id="btnCloze">🧩 Huecos</button>
+            </div>
+            <button type="button" class="btn-chip" id="btnReset">↺ Reiniciar</button>
+        </div>
+
+        <div class="toolbar" id="sheetToolbar" style="display:none;">
+            <div class="toolbar-group">
+                <button type="button" class="btn-chip" id="btnBlurAll">🙈 Ocultar respuestas</button>
+                <button type="button" class="btn-chip" id="btnTrapsSheet">⚡ Resaltar datos clave</button>
+            </div>
+            <span style="font-size:0.78rem; color:var(--text-secondary);">Toca una respuesta borrosa para verla</span>
+        </div>
+    </header>
+
+    <div class="view-section active" id="cardView">
+        <div class="card-wrapper">
+            <div class="card-face card-front visible" id="frontFace">
+                <div class="card-header">
+                    <span class="topic-tag" id="frontTopic">Tarjeta #1 • Hematología</span>
+                    <div class="card-actions-mini">
+                        <button type="button" class="btn-chip" id="btnSpeakQ" title="Escuchar pregunta">🔊</button>
+                        <button type="button" class="btn-chip" id="btnHint">💡 Pista</button>
+                    </div>
+                </div>
+
+                <div class="question-box" id="questionText">¿Cómo regula la hipoxia tisular la producción de eritrocitos?</div>
+
+                <div class="hint-box" id="hintBox"></div>
+
+                <div class="recall-box">
+                    <div class="recall-header">
+                        <span>✍️ Explícalo con tus palabras (o dicta por voz):</span>
+                        <span id="micStatus" style="color:var(--accent); font-size:0.74rem;"></span>
+                    </div>
+                    <div class="textarea-wrap">
+                        <textarea id="userAnswerInput" placeholder="Escribe aquí lo que recuerdas antes de voltear la tarjeta..."></textarea>
+                        <button type="button" class="mic-btn" id="micBtn" title="Dictar respuesta por voz">🎙️</button>
+                    </div>
+                    <div class="recall-actions">
+                        <button type="button" class="btn-verify" id="btnVerify">✓ Verificar mi respuesta</button>
+                        <button type="button" class="btn-chip" id="btnClear">Limpiar</button>
+                    </div>
+
+                    <div class="feedback-panel" id="feedbackPanel">
+                        <div class="score-row">
+                            <span id="feedbackTitle">Precisión de conceptos:</span>
+                            <span id="feedbackPct" style="color:var(--accent);">0%</span>
+                        </div>
+                        <div class="kw-list" id="kwChips"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-face card-back" id="backFace">
+                <div class="card-header">
+                    <span class="topic-tag" id="backTopic">Respuesta Oficial</span>
+                    <div class="card-actions-mini">
+                        <button type="button" class="btn-chip" id="btnSpeakA" title="Escuchar respuesta">🔊 Escuchar</button>
+                        <button type="button" class="btn-chip" id="btnTrapsBack">⚡ Trampas</button>
+                        <button type="button" class="btn-chip" id="btnClozeBack">🧩 Huecos</button>
+                    </div>
+                </div>
+
+                <div class="answer-box" id="answerText"></div>
+
+                <div class="srs-bar" id="srsBar">
+                    <div class="srs-label">¿Qué tan bien te la sabes? (Las difíciles vuelven a salir pronto)</div>
+                    <div class="srs-grid">
+                        <button type="button" class="btn-srs srs-hard" id="btnRateHard">🔴 Difícil (Repetir)</button>
+                        <button type="button" class="btn-srs srs-med" id="btnRateMed">🟡 Media</button>
+                        <button type="button" class="btn-srs srs-easy" id="btnRateEasy">🟢 Fácil (Dominada)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <button type="button" class="btn-nav" id="btnPrev">← Anterior</button>
+            <button type="button" class="btn-nav flip-main" id="btnFlip">🔄 Voltear Tarjeta</button>
+            <button type="button" class="btn-nav" id="btnNext">Siguiente →</button>
+        </div>
+    </div>
+
+    <div class="view-section" id="sheetView">
+        <div class="cheatsheet-list" id="cheatsheetContainer"></div>
+    </div>
+
+    <div class="view-section" id="examResultsView">
+        <div class="exam-summary">
+            <h2 style="text-align:center; font-size:1.2rem;">📊 Resultado del Simulacro</h2>
+            <div class="big-score" id="finalExamScore">0 / 15</div>
+            <p id="finalExamMsg" style="text-align:center; color:var(--text-secondary); font-size:0.9rem;"></p>
+            <button type="button" class="btn-verify" style="padding:12px;" id="btnBackToStudy">Volver a Estudio Activo</button>
+            <div id="examBreakdown" style="display:flex; flex-direction:column; gap:8px; margin-top:6px;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const cardsData = [
+        {
+            id: 1,
+            topic: "Hematología",
+            q: "¿Cómo regula la hipoxia tisular la producción de eritrocitos?",
+            aLines: [
+                "La hipoxia tisular estimula a los riñones (producen el 90%) a secretar eritropoyetina (EPO). La EPO estimula en la médula ósea la diferenciación y producción de nuevos eritrocitos hasta normalizar el oxígeno."
+            ],
+            aTraps: "La hipoxia tisular estimula a los <span class='trap-highlight'>riñones (producen el 90%)</span> a secretar <span class='trap-highlight'>eritropoyetina (EPO)</span>. La EPO estimula en la <span class='trap-highlight'>médula ósea</span> la diferenciación y producción de nuevos eritrocitos hasta normalizar el oxígeno.",
+            clozeParts: [
+                "La hipoxia tisular estimula a los ",
+                { blank: "riñones (90%)" },
+                " a secretar ",
+                { blank: "eritropoyetina (EPO)" },
+                ". La EPO estimula en la ",
+                { blank: "médula ósea" },
+                " la diferenciación y producción de nuevos eritrocitos hasta normalizar el oxígeno."
+            ],
+            hint: "Órgano principal (90%), hormona secretada y tejido donde actúan las células madre.",
+            keywords: [
+                { label: "Riñones (90%)", terms: ["riñon", "riñones", "renal", "90%"] },
+                { label: "Eritropoyetina (EPO)", terms: ["eritropoyetina", "epo"] },
+                { label: "Médula ósea", terms: ["medula", "médula", "osea", "ósea"] },
+                { label: "Producción eritrocitos", terms: ["eritrocito", "globulo", "glóbulo", "produccion", "diferenciacion"] }
+            ]
+        },
+        {
+            id: 2,
+            topic: "Hematología",
+            q: "¿Por qué el déficit de vitamina B12 o de ácido fólico produce anemia megaloblástica?",
+            aLines: [
+                "Porque ambos son necesarios para sintetizar ADN. Su déficit frena la división celular, pero el citoplasma sigue creciendo, produciendo eritrocitos gigantes, frágiles y deformes llamados megaloblastos."
+            ],
+            aTraps: "Porque ambos son necesarios para <span class='trap-highlight'>sintetizar ADN</span>. Su déficit <span class='trap-highlight'>frena la división celular</span>, pero el <span class='trap-highlight'>citoplasma sigue creciendo</span>, produciendo eritrocitos gigantes, frágiles y deformes llamados <span class='trap-highlight'>megaloblastos</span>.",
+            clozeParts: [
+                "Porque ambos son necesarios para sintetizar ",
+                { blank: "ADN" },
+                ". Su déficit frena la ",
+                { blank: "división celular" },
+                ", pero el ",
+                { blank: "citoplasma" },
+                " sigue creciendo, produciendo eritrocitos gigantes, frágiles y deformes llamados ",
+                { blank: "megaloblastos" },
+                "."
+            ],
+            hint: "Síntesis de material genético, detención de mitosis vs. crecimiento citoplasmático.",
+            keywords: [
+                { label: "Síntesis de ADN", terms: ["adn", "dna", "sintetizar", "sintesis"] },
+                { label: "Frena división celular", terms: ["division", "división", "mitosis", "frena", "detiene"] },
+                { label: "Citoplasma crece", terms: ["citoplasma", "creciendo", "crece", "grande", "gigante"] },
+                { label: "Megaloblastos", terms: ["megaloblasto", "megaloblastos", "fragil", "deforme"] }
+            ]
+        },
+        {
+            id: 3,
+            topic: "Hematología",
+            q: "¿Cómo se absorbe, transporta, almacena y recicla el hierro en el organismo?",
+            aLines: [
+                "Se absorbe en el duodeno, se transporta en sangre unido a la transferrina, se almacena en el hígado como ferritina, y los macrófagos lo reciclan de los glóbulos rojos viejos devolviéndolo a la transferrina."
+            ],
+            aTraps: "Se absorbe en el <span class='trap-highlight'>duodeno</span>, se transporta en sangre unido a la <span class='trap-highlight'>transferrina</span>, se almacena en el <span class='trap-highlight'>hígado como ferritina</span>, y los <span class='trap-highlight'>macrófagos</span> lo reciclan de los glóbulos rojos viejos devolviéndolo a la transferrina.",
+            clozeParts: [
+                "Se absorbe en el ",
+                { blank: "duodeno" },
+                ", se transporta en sangre unido a la ",
+                { blank: "transferrina" },
+                ", se almacena en el hígado como ",
+                { blank: "ferritina" },
+                ", y los ",
+                { blank: "macrófagos" },
+                " lo reciclan de los glóbulos rojos viejos devolviéndolo a la transferrina."
+            ],
+            hint: "4 lugares/proteínas: intestino proximal, proteína plasmática, depósito hepático y célula fagocítica.",
+            keywords: [
+                { label: "Duodeno", terms: ["duodeno"] },
+                { label: "Transferrina", terms: ["transferrina"] },
+                { label: "Hígado / Ferritina", terms: ["ferritina", "higado", "hígado"] },
+                { label: "Macrófagos reciclan", terms: ["macrofago", "macrófago", "recicla", "viejos"] }
+            ]
+        },
+        {
+            id: 4,
+            topic: "Hematología",
+            q: "¿Qué efectos tienen la anemia y la policitemia sobre el gasto cardíaco y la viscosidad sanguínea?",
+            aLines: [
+                "Anemia: Disminuye la viscosidad y aumenta el gasto cardíaco.",
+                "Policitemia: Aumenta la viscosidad y disminuye el gasto cardíaco."
+            ],
+            aTraps: "<strong>Anemia:</strong> <span class='trap-highlight'>Disminuye la viscosidad</span> y <span class='trap-highlight'>aumenta el gasto cardíaco</span>.<br><strong>Policitemia:</strong> <span class='trap-highlight'>Aumenta la viscosidad</span> y <span class='trap-highlight'>disminuye el gasto cardíaco</span>.",
+            clozeParts: [
+                "Anemia: ",
+                { blank: "Disminuye" },
+                " la viscosidad y ",
+                { blank: "aumenta" },
+                " el gasto cardíaco. | Policitemia: ",
+                { blank: "Aumenta" },
+                " la viscosidad y ",
+                { blank: "disminuye" },
+                " el gasto cardíaco."
+            ],
+            hint: "Son inversos: menos glóbulos = sangre más líquida y rápida; exceso de glóbulos = sangre espesa y lenta.",
+            keywords: [
+                { label: "Anemia ↓ viscosidad", terms: ["anemia", "disminuye", "baja", "menor"] },
+                { label: "Anemia ↑ gasto cardíaco", terms: ["aumenta", "sube", "mayor", "gasto"] },
+                { label: "Policitemia ↑ viscosidad", terms: ["policitemia", "aumenta", "espesa"] },
+                { label: "Policitemia ↓ gasto cardíaco", terms: ["disminuye", "baja", "reduce"] }
+            ]
+        },
+        {
+            id: 5,
+            topic: "Inmunología",
+            q: "¿Cuál es la secuencia de la respuesta inflamatoria y qué papel cumplen los neutrófilos y los macrófagos?",
+            aLines: [
+                "Secuencia: Vasodilatación, aumento de permeabilidad capilar con edema, tabicación con fibrina y migración leucocitaria.",
+                "Células: Los macrófagos tisulares son la primera línea inmediata; los neutrófilos llegan de la sangre como la segunda línea para fagocitosis aguda."
+            ],
+            aTraps: "<strong>Secuencia:</strong> <span class='trap-highlight'>Vasodilatación</span>, aumento de <span class='trap-highlight'>permeabilidad capilar con edema</span>, <span class='trap-highlight'>tabicación con fibrina</span> y migración leucocitaria.<br><strong>Células:</strong> Los <span class='trap-highlight'>macrófagos tisulares (1ª línea)</span>; los <span class='trap-highlight'>neutrófilos (2ª línea)</span> para fagocitosis aguda.",
+            clozeParts: [
+                "Secuencia: ",
+                { blank: "Vasodilatación" },
+                ", aumento de permeabilidad capilar con ",
+                { blank: "edema" },
+                ", tabicación con ",
+                { blank: "fibrina" },
+                " y migración leucocitaria. Células: Los ",
+                { blank: "macrófagos" },
+                " tisulares son la primera línea inmediata; los ",
+                { blank: "neutrófilos" },
+                " llegan de la sangre como la segunda línea."
+            ],
+            hint: "4 pasos vasculares/tisulares + distinguir cuál célula ya está en el tejido (1ª) y cuál viene de la sangre (2ª).",
+            keywords: [
+                { label: "Vasodilatación y edema", terms: ["vasodilatacion", "vasodilatación", "permeabilidad", "edema"] },
+                { label: "Tabicación con fibrina", terms: ["fibrina", "tabicacion", "tabicación"] },
+                { label: "Macrófagos (1ª línea)", terms: ["macrofago", "macrófago", "primera"] },
+                { label: "Neutrófilos (2ª línea)", terms: ["neutrofilo", "neutrófilo", "segunda", "fagocitosis"] }
+            ]
+        },
+        {
+            id: 6,
+            topic: "Inmunología",
+            q: "¿En qué se diferencian la inmunidad humoral y la inmunidad celular en cuanto a células, mediadores y mecanismos?",
+            aLines: [
+                "Humoral: Mediada por linfocitos B que liberan anticuerpos contra patógenos extracelulares.",
+                "Celular: Mediada por linfocitos T que usan perforinas y citocinas para destruir células infectadas por patógenos intracelulares."
+            ],
+            aTraps: "<strong>Humoral:</strong> Mediada por <span class='trap-highlight'>linfocitos B</span> que liberan <span class='trap-highlight'>anticuerpos</span> contra patógenos <span class='trap-highlight'>extracelulares</span>.<br><strong>Celular:</strong> Mediada por <span class='trap-highlight'>linfocitos T</span> que usan <span class='trap-highlight'>perforinas y citocinas</span> para destruir células con patógenos <span class='trap-highlight'>intracelulares</span>.",
+            clozeParts: [
+                "Humoral: Mediada por ",
+                { blank: "linfocitos B" },
+                " que liberan ",
+                { blank: "anticuerpos" },
+                " contra patógenos extracelulares. Celular: Mediada por ",
+                { blank: "linfocitos T" },
+                " que usan ",
+                { blank: "perforinas y citocinas" },
+                " para destruir células infectadas por patógenos intracelulares."
+            ],
+            hint: "B = Anticuerpos (extracelular) vs. T = Perforinas/citocinas (intracelular).",
+            keywords: [
+                { label: "Linfocitos B", terms: ["linfocitos b", "linfocito b", "celulas b"] },
+                { label: "Anticuerpos (extracelular)", terms: ["anticuerpo", "inmunoglobulina", "extracelular"] },
+                { label: "Linfocitos T", terms: ["linfocitos t", "linfocito t", "celulas t"] },
+                { label: "Perforinas / Intracelular", terms: ["perforina", "citocina", "intracelular"] }
+            ]
+        },
+        {
+            id: 7,
+            topic: "Inmunología",
+            q: "¿Por qué la respuesta inmunitaria secundaria es más rápida e intensa que la primaria?",
+            aLines: [
+                "Por la presencia previa de células de memoria (linfocitos B y T). Ante un segundo contacto se activan en pocas horas y producen una cantidad masiva y prolongada de anticuerpos."
+            ],
+            aTraps: "Por la presencia previa de <span class='trap-highlight'>células de memoria (linfocitos B y T)</span>. Ante un segundo contacto se activan en <span class='trap-highlight'>pocas horas</span> y producen una cantidad <span class='trap-highlight'>masiva y prolongada de anticuerpos</span>.",
+            clozeParts: [
+                "Por la presencia previa de ",
+                { blank: "células de memoria" },
+                " (linfocitos B y T). Ante un segundo contacto se activan en ",
+                { blank: "pocas horas" },
+                " y producen una cantidad masiva y prolongada de ",
+                { blank: "anticuerpos" },
+                "."
+            ],
+            hint: "Clones linfocitarios guardados tras la primera exposición y velocidad de respuesta.",
+            keywords: [
+                { label: "Células de memoria", terms: ["memoria"] },
+                { label: "Linfocitos B y T", terms: ["linfocito", "b y t"] },
+                { label: "Activación en horas", terms: ["horas", "rapida", "rápida"] },
+                { label: "Anticuerpos masivos", terms: ["anticuerpo", "masiva", "prolongada", "intensa"] }
+            ]
+        },
+        {
+            id: 8,
+            topic: "Inmunología / Grupos",
+            q: "¿Por qué una transfusión ABO incompatible causa hemólisis y cómo se previene la eritroblastosis fetal?",
+            aLines: [
+                "ABO: Los anticuerpos naturales del receptor atacan los eritrocitos del donante y activan el complemento, causando hemólisis inmediata.",
+                "Eritroblastosis: Inyectando a la madre Rh negativa inmunoglobulina anti-D en la gestación y en las primeras 72 horas postparto."
+            ],
+            aTraps: "<strong>ABO:</strong> Los <span class='trap-highlight'>anticuerpos naturales del receptor</span> atacan los eritrocitos del donante y <span class='trap-highlight'>activan el complemento</span>, causando hemólisis inmediata.<br><strong>Eritroblastosis:</strong> Inyectando a la madre Rh negativa <span class='trap-highlight'>inmunoglobulina anti-D</span> en la gestación y en las <span class='trap-highlight'>primeras 72 horas postparto</span>.",
+            clozeParts: [
+                "ABO: Los ",
+                { blank: "anticuerpos naturales" },
+                " del receptor atacan los eritrocitos del donante y activan el ",
+                { blank: "complemento" },
+                ", causando hemólisis inmediata. Eritroblastosis: Inyectando a la madre Rh negativa ",
+                { blank: "inmunoglobulina anti-D" },
+                " en la gestación y en las primeras ",
+                { blank: "72 horas" },
+                " postparto."
+            ],
+            hint: "Aglutininas del receptor + sistema del complemento; y vacuna anti-D dentro de las 72 h.",
+            keywords: [
+                { label: "Anticuerpos naturales", terms: ["anticuerpo", "aglutinina", "receptor"] },
+                { label: "Sistema del complemento", terms: ["complemento", "hemolisis", "hemólisis"] },
+                { label: "Inmunoglobulina anti-D", terms: ["anti-d", "antid", "inmunoglobulina", "rhogam"] },
+                { label: "72 horas postparto", terms: ["72", "horas", "postparto", "gestacion"] }
+            ]
+        },
+        {
+            id: 9,
+            topic: "Hemostasia",
+            q: "¿Cómo se forma el tapón plaquetario desde la lesión vascular hasta la retracción del coágulo?",
+            aLines: [
+                "Las plaquetas se adhieren al colágeno (vía factor de von Willebrand), se activan liberando ADP y tromboxano A2, y se agregan formando el tapón. Luego, la actina y miosina de las plaquetas contraen la red de fibrina exprimiendo el suero (retracción)."
+            ],
+            aTraps: "Las plaquetas se adhieren al colágeno (<span class='trap-highlight'>factor de von Willebrand</span>), se activan liberando <span class='trap-highlight'>ADP y tromboxano A2</span>, y se agregan formando el tapón. Luego, la <span class='trap-highlight'>actina y miosina</span> de las plaquetas contraen la red de fibrina exprimiendo el suero (retracción).",
+            clozeParts: [
+                "Las plaquetas se adhieren al colágeno (vía ",
+                { blank: "factor de von Willebrand" },
+                "), se activan liberando ",
+                { blank: "ADP y tromboxano A2" },
+                ", y se agregan formando el tapón. Luego, la ",
+                { blank: "actina y miosina" },
+                " de las plaquetas contraen la red de fibrina exprimiendo el suero."
+            ],
+            hint: "Adhesión (vWF) -> Activación (ADP + TXA2) -> Agregación -> Retracción (actina/miosina).",
+            keywords: [
+                { label: "Factor de von Willebrand", terms: ["willebrand", "colageno", "colágeno", "adhieren"] },
+                { label: "ADP y Tromboxano A2", terms: ["adp", "tromboxano"] },
+                { label: "Agregación plaquetaria", terms: ["agregan", "agregacion", "tapon", "tapón"] },
+                { label: "Actina y miosina (retracción)", terms: ["actina", "miosina", "retraccion", "fibrina", "suero"] }
+            ]
+        },
+        {
+            id: 10,
+            topic: "Hemostasia",
+            q: "¿En qué se diferencian las vías intrínseca y extrínseca de la coagulación y qué papel tiene la vitamina K?",
+            aLines: [
+                "Extrínseca: Rápida (segundos), iniciada por la liberación de factor tisular.",
+                "Intrínseca: Lenta (minutos), iniciada por la activación del factor XII por contacto con colágeno.",
+                "Vitamina K: Indispensable en el hígado para activar los factores II, VII, IX y X."
+            ],
+            aTraps: "<strong>Extrínseca:</strong> <span class='trap-highlight'>Rápida (segundos)</span>, iniciada por <span class='trap-highlight'>factor tisular</span>.<br><strong>Intrínseca:</strong> <span class='trap-highlight'>Lenta (minutos)</span>, iniciada por activación del <span class='trap-highlight'>factor XII</span>.<br><strong>Vitamina K:</strong> Indispensable en el hígado para activar los factores <span class='trap-highlight'>II, VII, IX y X</span>.",
+            clozeParts: [
+                "Extrínseca: Rápida (segundos), iniciada por ",
+                { blank: "factor tisular" },
+                ". Intrínseca: Lenta (minutos), iniciada por activación del ",
+                { blank: "factor XII" },
+                " por contacto con colágeno. Vitamina K: Indispensable en el hígado para activar los factores ",
+                { blank: "II, VII, IX y X" },
+                "."
+            ],
+            hint: "Segundos (Factor tisular) vs. Minutos (Factor XII) + los 4 factores vitamina K dependientes.",
+            keywords: [
+                { label: "Extrínseca: Factor tisular", terms: ["tisular", "segundos", "rapida"] },
+                { label: "Intrínseca: Factor XII", terms: ["xii", "12", "minutos", "colageno"] },
+                { label: "Hígado", terms: ["higado", "hígado", "hepatico"] },
+                { label: "Factores II, VII, IX, X", terms: ["ii", "vii", "ix", "x", "2", "7", "9", "10"] }
+            ]
+        },
+        {
+            id: 11,
+            topic: "Gastrointestinal",
+            q: "¿Cómo coordinan los sistemas nervioso entérico y autónomo la motilidad gastrointestinal?",
+            aLines: [
+                "Entérico (local): El plexo de Auerbach (mientérico) controla los movimientos y tono; el plexo de Meissner (submucoso) controla secreción y flujo local.",
+                "Autónomo (general): El parasimpático estimula motilidad y secreción; el simpático las inhibe y contrae esfínteres."
+            ],
+            aTraps: "<strong>Entérico:</strong> El <span class='trap-highlight'>plexo de Auerbach (mientérico)</span> controla movimientos y tono; el <span class='trap-highlight'>plexo de Meissner (submucoso)</span> controla secreción y flujo local.<br><strong>Autónomo:</strong> El <span class='trap-highlight'>parasimpático estimula</span> motilidad y secreción; el <span class='trap-highlight'>simpático las inhibe</span> y contrae esfínteres.",
+            clozeParts: [
+                "Entérico: El plexo de ",
+                { blank: "Auerbach (mientérico)" },
+                " controla movimientos y tono; el plexo de ",
+                { blank: "Meissner (submucoso)" },
+                " controla secreción y flujo local. Autónomo: El ",
+                { blank: "parasimpático" },
+                " estimula motilidad y secreción; el ",
+                { blank: "simpático" },
+                " las inhibe y contrae esfínteres."
+            ],
+            hint: "Auerbach = Movimiento; Meissner = Secreción; Parasimpático = Activa; Simpático = Frena.",
+            keywords: [
+                { label: "Plexo de Auerbach (motilidad)", terms: ["auerbach", "mienterico", "mientérico", "movimiento"] },
+                { label: "Plexo de Meissner (secreción)", terms: ["meissner", "submucoso", "secrecion"] },
+                { label: "Parasimpático estimula", terms: ["parasimpatico", "parasimpático", "estimula", "vago"] },
+                { label: "Simpático inhibe", terms: ["simpatico", "simpático", "inhibe", "esfinter"] }
+            ]
+        },
+        {
+            id: 12,
+            topic: "Gastrointestinal",
+            q: "¿Cuáles son las fases de la secreción gástrica y cómo se regula la producción de ácido clorhídrico?",
+            aLines: [
+                "Fases: Cefálica (nervio vago), Gástrica (gastrina) e Intestinal.",
+                "Regulación HCl: Células parietales (bomba de protones). Estimulado por acetilcolina, gastrina e histamina; inhibido por somatostatina."
+            ],
+            aTraps: "<strong>Fases:</strong> <span class='trap-highlight'>Cefálica (vago)</span>, <span class='trap-highlight'>Gástrica (gastrina)</span> e <span class='trap-highlight'>Intestinal</span>.<br><strong>Regulación HCl:</strong> <span class='trap-highlight'>Células parietales</span> (bomba de protones). Estimulado por <span class='trap-highlight'>acetilcolina, gastrina e histamina</span>; inhibido por <span class='trap-highlight'>somatostatina</span>.",
+            clozeParts: [
+                "Fases: ",
+                { blank: "Cefálica, Gástrica e Intestinal" },
+                ". Regulación HCl: Células ",
+                { blank: "parietales" },
+                ". Estimulado por ",
+                { blank: "acetilcolina, gastrina e histamina" },
+                "; inhibido por ",
+                { blank: "somatostatina" },
+                "."
+            ],
+            hint: "3 fases + célula parietal + 3 estimulantes (ACh, Gastrina, Histamina) + 1 inhibidor.",
+            keywords: [
+                { label: "Cefálica, Gástrica, Intestinal", terms: ["cefalica", "cefálica", "gastrica", "intestinal"] },
+                { label: "Células parietales", terms: ["parietal", "parietales", "protones"] },
+                { label: "ACh, Gastrina, Histamina", terms: ["acetilcolina", "gastrina", "histamina"] },
+                { label: "Somatostatina (inhibe)", terms: ["somatostatina"] }
+            ]
+        },
+        {
+            id: 13,
+            topic: "Gastrointestinal",
+            q: "¿Qué función cumplen las sales biliares en la digestión y absorción de las grasas?",
+            aLines: [
+                "Emulsionan las gotas de grasa para que actúe la lipasa pancreática y forman micelas que transportan los ácidos grasos hacia el epitelio intestinal para su absorción."
+            ],
+            aTraps: "<span class='trap-highlight'>Emulsionan</span> las gotas de grasa para que actúe la <span class='trap-highlight'>lipasa pancreática</span> y forman <span class='trap-highlight'>micelas</span> que transportan los ácidos grasos hacia el epitelio intestinal para su absorción.",
+            clozeParts: [
+                { blank: "Emulsionan" },
+                " las gotas de grasa para que actúe la ",
+                { blank: "lipasa pancreática" },
+                " y forman ",
+                { blank: "micelas" },
+                " que transportan los ácidos grasos hacia el epitelio intestinal para su absorción."
+            ],
+            hint: "Dos acciones clave: 1) Romper gotas grandes (detergente) y 2) Crear esferas transportadoras.",
+            keywords: [
+                { label: "Emulsionan grasas", terms: ["emulsion", "emulsión", "emulsionan", "gotas"] },
+                { label: "Lipasa pancreática", terms: ["lipasa", "pancreatica"] },
+                { label: "Forman micelas", terms: ["micela", "micelas"] },
+                { label: "Transporte al epitelio", terms: ["transportan", "epitelio", "absorcion", "acidos grasos"] }
+            ]
+        },
+        {
+            id: 14,
+            topic: "Gastrointestinal",
+            q: "¿Cómo se absorben el sodio, la glucosa y el agua en el intestino delgado?",
+            aLines: [
+                "La glucosa entra al enterocito con el sodio mediante el cotransportador SGLT-1 (transporte activo secundario) y el sodio sale hacia la sangre por la bomba Na⁺/K⁺ ATPasa. El agua se absorbe pasivamente por ósmosis siguiendo a los solutos."
+            ],
+            aTraps: "La glucosa entra al enterocito con el sodio mediante el cotransportador <span class='trap-highlight'>SGLT-1 (transporte activo secundario)</span> y el sodio sale hacia la sangre por la <span class='trap-highlight'>bomba Na⁺/K⁺ ATPasa</span>. El agua se absorbe pasivamente por <span class='trap-highlight'>ósmosis</span> siguiendo a los solutos.",
+            clozeParts: [
+                "La glucosa entra al enterocito con el sodio mediante el cotransportador ",
+                { blank: "SGLT-1" },
+                " (transporte activo secundario) y el sodio sale hacia la sangre por la bomba ",
+                { blank: "Na⁺/K⁺ ATPasa" },
+                ". El agua se absorbe pasivamente por ",
+                { blank: "ósmosis" },
+                " siguiendo a los solutos."
+            ],
+            hint: "Transportador apical de entrada (SGLT-1), bomba basolateral de salida y movimiento pasivo del agua.",
+            keywords: [
+                { label: "Cotransportador SGLT-1", terms: ["sglt", "cotransportador", "secundario"] },
+                { label: "Bomba Na+/K+ ATPasa", terms: ["bomba", "atpasa", "potasio", "sangre"] },
+                { label: "Ósmosis (agua)", terms: ["osmosis", "ósmosis", "pasivamente", "solutos"] }
+            ]
+        },
+        {
+            id: 15,
+            topic: "Gastrointestinal",
+            q: "¿Qué mecanismos controlan el vaciamiento gástrico y por qué es importante regularlo?",
+            aLines: [
+                "Es estimulado por el volumen gástrico e inhibido por el reflejo enterogástrico y hormonas duodenales (CCK, secretina). Es importante para dosificar el paso del quimo y permitir una adecuada neutralización ácida y digestión intestinal."
+            ],
+            aTraps: "Es estimulado por el <span class='trap-highlight'>volumen gástrico</span> e inhibido por el <span class='trap-highlight'>reflejo enterogástrico</span> y hormonas duodenales (<span class='trap-highlight'>CCK, secretina</span>). Es importante para <span class='trap-highlight'>dosificar el quimo</span> y permitir una adecuada <span class='trap-highlight'>neutralización ácida</span> y digestión intestinal.",
+            clozeParts: [
+                "Es estimulado por el ",
+                { blank: "volumen gástrico" },
+                " e inhibido por el ",
+                { blank: "reflejo enterogástrico" },
+                " y hormonas duodenales (",
+                { blank: "CCK, secretina" },
+                "). Es importante para dosificar el paso del quimo y permitir una adecuada ",
+                { blank: "neutralización ácida" },
+                " y digestión intestinal."
+            ],
+            hint: "Estímulo: distensión del estómago. Freno: reflejo + hormonas del duodeno. Propósito: evitar sobrecarga ácida.",
+            keywords: [
+                { label: "Volumen gástrico (estimula)", terms: ["volumen", "distension", "distensión"] },
+                { label: "Reflejo enterogástrico", terms: ["enterogastrico", "enterogástrico", "reflejo"] },
+                { label: "CCK y Secretina", terms: ["cck", "colecistocinina", "secretina", "duodenal"] },
+                { label: "Dosificar / Neutralización ácida", terms: ["dosificar", "neutralizacion", "neutralización", "quimo", "digestion"] }
+            ]
+        }
+    ];
+
+    let currentMode = 'study';
+    let deck = [...cardsData];
+    let currentIndex = 0;
+    let isFlipped = false;
+    let isShuffled = false;
+    let filterHardOnly = false;
+    let showTraps = false;
+    let clozeMode = false;
+    let blurSheet = false;
+
+    let ratings = {};
+    try {
+        ratings = JSON.parse(localStorage.getItem('fisio_srs_ratings') || '{}');
+    } catch (e) {
+        ratings = {};
+    }
+
+    let examTimerInterval = null;
+    let examSecondsLeft = 900;
+    let examAnswers = {};
+
+    let recognition = null;
+    let isRecording = false;
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRec();
+        recognition.lang = 'es-ES';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        recognition.onresult = (event) => {
+            let transcript = '';
+            for (let i = 0; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
+            }
+            document.getElementById('userAnswerInput').value = transcript;
+        };
+
+        recognition.onerror = () => {
+            stopDictation();
+            document.getElementById('micStatus').textContent = "Error de micrófono";
+        };
+
+        recognition.onend = () => {
+            stopDictation();
+        };
+    }
+
+    function toggleDictation() {
+        if (!recognition) {
+            alert("Tu navegador no soporta dictado directo aquí. Usa el botón de micrófono del teclado de tu iPhone o escribe tu respuesta.");
+            return;
+        }
+        if (isRecording) {
+            recognition.stop();
+            stopDictation();
+        } else {
+            isRecording = true;
+            document.getElementById('micBtn').classList.add('recording');
+            document.getElementById('micStatus').textContent = "Escuchando...";
+            recognition.start();
+        }
+    }
+
+    function stopDictation() {
+        isRecording = false;
+        document.getElementById('micBtn').classList.remove('recording');
+        document.getElementById('micStatus').textContent = "";
+    }
+
+    function speakText(side) {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        const card = deck[currentIndex];
+        const text = side === 'q' ? card.q : card.aLines.join(' ');
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'es-ES';
+        utterance.rate = 1.02;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function normalize(str) {
+        return str.toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()¿?¡!]/g, " ");
+    }
+
+    function evaluateText(card, rawInput) {
+        const normInput = normalize(rawInput);
+        let hits = [];
+        let misses = [];
+
+        card.keywords.forEach(kw => {
+            const matched = kw.terms.some(term => normInput.includes(normalize(term)));
+            if (matched) hits.push(kw.label);
+            else misses.push(kw.label);
+        });
+
+        const pct = Math.round((hits.length / card.keywords.length) * 100);
+        return { pct, hits, misses };
+    }
+
+    function verifyRecall() {
+        if (isRecording && recognition) recognition.stop();
+        const input = document.getElementById('userAnswerInput').value.trim();
+        if (!input) {
+            alert("Escribe o dicta tu respuesta primero para evaluarla.");
+            return;
+        }
+
+        const card = deck[currentIndex];
+        const result = evaluateText(card, input);
+
+        if (currentMode === 'exam') {
+            examAnswers[card.id] = { text: input, ...result };
+        }
+
+        const panel = document.getElementById('feedbackPanel');
+        const pctEl = document.getElementById('feedbackPct');
+        const chipsEl = document.getElementById('kwChips');
+
+        pctEl.textContent = `${result.pct}% (${result.hits.length}/${card.keywords.length} conceptos)`;
+        pctEl.style.color = result.pct >= 75 ? 'var(--success)' : (result.pct >= 50 ? 'var(--warning)' : 'var(--danger)');
+
+        chipsEl.innerHTML = '';
+        result.hits.forEach(h => {
+            chipsEl.innerHTML += `<span class="kw-pill kw-hit">✓ ${h}</span>`;
+        });
+        result.misses.forEach(m => {
+            chipsEl.innerHTML += `<span class="kw-pill kw-miss">✗ Falta: ${m}</span>`;
+        });
+
+        panel.classList.add('visible');
+    }
+
+    function clearRecall() {
+        document.getElementById('userAnswerInput').value = '';
+        document.getElementById('feedbackPanel').classList.remove('visible');
+    }
+
+    function buildDeck() {
+        let base = [...cardsData];
+        if (currentMode === 'study' && filterHardOnly) {
+            const hards = base.filter(c => ratings[c.id] === 'hard' || !ratings[c.id]);
+            if (hards.length > 0) base = hards;
+            else {
+                filterHardOnly = false;
+                document.getElementById('btnFilterHard').classList.remove('active');
+            }
+        }
+        if (isShuffled || currentMode === 'exam') {
+            base.sort(() => Math.random() - 0.5);
+        }
+        deck = base;
+        currentIndex = 0;
+    }
+
+    function renderCloze(parts) {
+        const p = document.createElement('p');
+        parts.forEach(part => {
+            if (typeof part === 'string') {
+                p.appendChild(document.createTextNode(part));
+            } else {
+                const span = document.createElement('span');
+                span.className = 'cloze-blank';
+                span.textContent = part.blank;
+                span.addEventListener('click', () => span.classList.toggle('revealed'));
+                p.appendChild(span);
+            }
+        });
+        return p;
+    }
+
+    function renderCard() {
+        if (currentIndex >= deck.length) currentIndex = 0;
+        if (currentIndex < 0) currentIndex = deck.length - 1;
+
+        const card = deck[currentIndex];
+        const rating = ratings[card.id];
+        let statusIcon = rating === 'easy' ? '🟢' : (rating === 'med' ? '🟡' : (rating === 'hard' ? '🔴' : '⚪'));
+
+        document.getElementById('frontTopic').textContent = `${statusIcon} Tarjeta #${card.id} • ${card.topic}`;
+        document.getElementById('backTopic').textContent = `Respuesta #${card.id} • ${card.topic}`;
+        document.getElementById('questionText').textContent = card.q;
+        document.getElementById('hintBox').textContent = "💡 Pista: " + card.hint;
+        document.getElementById('hintBox').classList.remove('visible');
+
+        const ansEl = document.getElementById('answerText');
+        ansEl.innerHTML = '';
+        if (clozeMode) {
+            ansEl.appendChild(renderCloze(card.clozeParts));
+            const tip = document.createElement('small');
+            tip.style.color = 'var(--text-secondary)';
+            tip.style.fontSize = '0.78rem';
+            tip.textContent = 'Toca cada cuadro gris para descubrir el término oculto.';
+            ansEl.appendChild(tip);
+        } else if (showTraps) {
+            ansEl.innerHTML = `<p>${card.aTraps}</p>`;
+        } else {
+            card.aLines.forEach(line => {
+                const p = document.createElement('p');
+                p.textContent = line;
+                ansEl.appendChild(p);
+            });
+        }
+
+        if (currentMode === 'exam' && examAnswers[card.id]) {
+            document.getElementById('userAnswerInput').value = examAnswers[card.id].text;
+            verifyRecall();
+        } else {
+            clearRecall();
+        }
+
+        document.getElementById('btnHint').style.display = currentMode === 'exam' ? 'none' : 'inline-flex';
+        document.getElementById('srsBar').style.display = currentMode === 'exam' ? 'none' : 'flex';
+        document.getElementById('btnFlip').style.display = currentMode === 'exam' ? 'none' : 'flex';
+
+        document.getElementById('counterBadge').textContent = `${currentIndex + 1} / ${deck.length}`;
+        document.getElementById('progressBar').style.width = `${((currentIndex + 1) / deck.length) * 100}%`;
+
+        const hardNum = cardsData.filter(c => ratings[c.id] === 'hard').length;
+        document.getElementById('hardCount').textContent = hardNum;
+
+        document.getElementById('btnNext').textContent = (currentMode === 'exam' && currentIndex === deck.length - 1)
+            ? "🏁 Finalizar Examen"
+            : "Siguiente →";
+
+        isFlipped = false;
+        document.getElementById('frontFace').classList.add('visible');
+        document.getElementById('backFace').classList.remove('visible');
+    }
+
+    function flipCard() {
+        if (currentMode === 'exam') return;
+        isFlipped = !isFlipped;
+        document.getElementById('frontFace').classList.toggle('visible', !isFlipped);
+        document.getElementById('backFace').classList.toggle('visible', isFlipped);
+    }
+
+    function nextCard() {
+        if (currentMode === 'exam') {
+            const val = document.getElementById('userAnswerInput').value.trim();
+            if (val) verifyRecall();
+            if (currentIndex === deck.length - 1) {
+                finishExamSim();
+                return;
+            }
+        }
+        currentIndex = (currentIndex + 1) % deck.length;
+        renderCard();
+    }
+
+    function prevCard() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            renderCard();
+        }
+    }
+
+    function toggleHint() {
+        document.getElementById('hintBox').classList.toggle('visible');
+    }
+
+    function rateCard(level) {
+        const card = deck[currentIndex];
+        ratings[card.id] = level;
+        try {
+            localStorage.setItem('fisio_srs_ratings', JSON.stringify(ratings));
+        } catch (e) {}
+
+        if (level === 'hard' && deck.length > 2) {
+            const insertPos = Math.min(currentIndex + 3, deck.length);
+            deck.splice(insertPos, 0, card);
+        }
+
+        nextCard();
+    }
+
+    function toggleShuffle() {
+        isShuffled = !isShuffled;
+        document.getElementById('btnShuffle').classList.toggle('active', isShuffled);
+        buildDeck();
+        renderCard();
+    }
+
+    function toggleFilterHard() {
+        const hardNum = cardsData.filter(c => ratings[c.id] === 'hard').length;
+        if (!filterHardOnly && hardNum === 0) {
+            alert("Aún no has marcado ninguna tarjeta como 'Difícil (🔴)'.");
+            return;
+        }
+        filterHardOnly = !filterHardOnly;
+        document.getElementById('btnFilterHard').classList.toggle('active', filterHardOnly);
+        buildDeck();
+        renderCard();
+    }
+
+    function toggleTraps() {
+        showTraps = !showTraps;
+        if (showTraps) clozeMode = false;
+        syncFeatureChips();
+        renderCard();
+        renderCheatSheet();
+    }
+
+    function toggleCloze() {
+        clozeMode = !clozeMode;
+        if (clozeMode) showTraps = false;
+        syncFeatureChips();
+        renderCard();
+    }
+
+    function syncFeatureChips() {
+        ['btnTraps', 'btnTrapsBack', 'btnTrapsSheet'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('active', showTraps);
+        });
+        ['btnCloze', 'btnClozeBack'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('active', clozeMode);
+        });
+    }
+
+    function resetAllStats() {
+        if (confirm("¿Reiniciar todo el progreso de tarjetas difíciles/dominadas?")) {
+            ratings = {};
+            try { localStorage.removeItem('fisio_srs_ratings'); } catch (e) {}
+            filterHardOnly = false;
+            document.getElementById('btnFilterHard').classList.remove('active');
+            buildDeck();
+            renderCard();
+        }
+    }
+
+    function switchMode(mode) {
+        currentMode = mode;
+        clearInterval(examTimerInterval);
+        document.getElementById('examTimer').classList.remove('active');
+
+        document.getElementById('tabStudy').classList.toggle('active', mode === 'study');
+        document.getElementById('tabExam').classList.toggle('active', mode === 'exam');
+        document.getElementById('tabSheet').classList.toggle('active', mode === 'sheet');
+
+        document.getElementById('studyToolbar').style.display = mode === 'study' ? 'flex' : 'none';
+        document.getElementById('sheetToolbar').style.display = mode === 'sheet' ? 'flex' : 'none';
+        document.getElementById('progressWrap').style.display = mode === 'sheet' ? 'none' : 'block';
+
+        document.getElementById('cardView').classList.toggle('active', mode === 'study' || mode === 'exam');
+        document.getElementById('sheetView').classList.toggle('active', mode === 'sheet');
+        document.getElementById('examResultsView').classList.remove('active');
+
+        if (mode === 'study') {
+            buildDeck();
+            renderCard();
+        } else if (mode === 'sheet') {
+            document.getElementById('counterBadge').textContent = "15 / 15";
+            renderCheatSheet();
+        }
+    }
+
+    function startExamSim() {
+        switchMode('exam');
+        examAnswers = {};
+        examSecondsLeft = 15 * 60;
+        const timerEl = document.getElementById('examTimer');
+        timerEl.classList.add('active');
+        updateTimerDisplay();
+
+        examTimerInterval = setInterval(() => {
+            examSecondsLeft--;
+            updateTimerDisplay();
+            if (examSecondsLeft <= 0) {
+                clearInterval(examTimerInterval);
+                finishExamSim();
+            }
+        }, 1000);
+
+        buildDeck();
+        renderCard();
+    }
+
+    function updateTimerDisplay() {
+        const mins = Math.floor(examSecondsLeft / 60).toString().padStart(2, '0');
+        const secs = (examSecondsLeft % 60).toString().padStart(2, '0');
+        document.getElementById('examTimer').textContent = `⏱️ ${mins}:${secs}`;
+    }
+
+    function finishExamSim() {
+        clearInterval(examTimerInterval);
+        document.getElementById('examTimer').classList.remove('active');
+        document.getElementById('cardView').classList.remove('active');
+        document.getElementById('examResultsView').classList.add('active');
+
+        let totalPoints = 0;
+        const breakdownEl = document.getElementById('examBreakdown');
+        breakdownEl.innerHTML = '';
+
+        deck.forEach((card, idx) => {
+            const ans = examAnswers[card.id];
+            const pct = ans ? ans.pct : 0;
+            const passed = pct >= 70;
+            if (passed) totalPoints++;
+
+            breakdownEl.innerHTML += `
+                <div class="exam-review-item ${passed ? 'pass' : 'fail'}">
+                    <strong>${idx + 1}. ${card.q}</strong>
+                    <span>Resultado: <b>${pct}%</b> ${ans ? `(Faltó: ${ans.misses.join(', ') || 'Nada'})` : '(Sin responder)'}</span>
+                    <span style="color:var(--text-secondary); font-size:0.8rem;">Oficial: ${card.aLines.join(' ')}</span>
+                </div>
+            `;
+        });
+
+        document.getElementById('finalExamScore').textContent = `${totalPoints} / 15`;
+        document.getElementById('finalExamMsg').textContent = totalPoints >= 13
+            ? "¡Excelente! Estás listo para romper ese examen el viernes."
+            : "Repasa las preguntas marcadas en rojo antes del viernes.";
+    }
+
+    function renderCheatSheet() {
+        const container = document.getElementById('cheatsheetContainer');
+        container.innerHTML = '';
+        cardsData.forEach(card => {
+            const item = document.createElement('div');
+            item.className = 'cs-item';
+
+            const qDiv = document.createElement('div');
+            qDiv.className = 'cs-q';
+            qDiv.innerHTML = `<span>#${card.id}. ${card.q}</span><span style="font-size:0.72rem; color:var(--accent); white-space:nowrap;">${card.topic}</span>`;
+
+            const aDiv = document.createElement('div');
+            aDiv.className = `cs-a ${blurSheet ? 'blurred' : ''}`;
+            aDiv.innerHTML = showTraps ? card.aTraps : card.aLines.join('<br>');
+            aDiv.addEventListener('click', () => aDiv.classList.remove('blurred'));
+
+            item.appendChild(qDiv);
+            item.appendChild(aDiv);
+            container.appendChild(item);
+        });
+    }
+
+    function toggleBlurSheet() {
+        blurSheet = !blurSheet;
+        document.getElementById('btnBlurAll').classList.toggle('active', blurSheet);
+        renderCheatSheet();
+    }
+
+    document.getElementById('tabStudy').addEventListener('click', () => switchMode('study'));
+    document.getElementById('tabExam').addEventListener('click', startExamSim);
+    document.getElementById('tabSheet').addEventListener('click', () => switchMode('sheet'));
+
+    document.getElementById('btnShuffle').addEventListener('click', toggleShuffle);
+    document.getElementById('btnFilterHard').addEventListener('click', toggleFilterHard);
+    document.getElementById('btnTraps').addEventListener('click', toggleTraps);
+    document.getElementById('btnCloze').addEventListener('click', toggleCloze);
+    document.getElementById('btnReset').addEventListener('click', resetAllStats);
+
+    document.getElementById('btnBlurAll').addEventListener('click', toggleBlurSheet);
+    document.getElementById('btnTrapsSheet').addEventListener('click', toggleTraps);
+
+    document.getElementById('btnSpeakQ').addEventListener('click', () => speakText('q'));
+    document.getElementById('btnHint').addEventListener('click', toggleHint);
+    document.getElementById('micBtn').addEventListener('click', toggleDictation);
+    document.getElementById('btnVerify').addEventListener('click', verifyRecall);
+    document.getElementById('btnClear').addEventListener('click', clearRecall);
+
+    document.getElementById('btnSpeakA').addEventListener('click', () => speakText('a'));
+    document.getElementById('btnTrapsBack').addEventListener('click', toggleTraps);
+    document.getElementById('btnClozeBack').addEventListener('click', toggleCloze);
+
+    document.getElementById('btnRateHard').addEventListener('click', () => rateCard('hard'));
+    document.getElementById('btnRateMed').addEventListener('click', () => rateCard('med'));
+    document.getElementById('btnRateEasy').addEventListener('click', () => rateCard('easy'));
+
+    document.getElementById('btnPrev').addEventListener('click', prevCard);
+    document.getElementById('btnFlip').addEventListener('click', flipCard);
+    document.getElementById('btnNext').addEventListener('click', nextCard);
+    document.getElementById('btnBackToStudy').addEventListener('click', () => switchMode('study'));
+
+    document.addEventListener('keydown', (e) => {
+        if (document.activeElement.tagName === 'TEXTAREA') return;
+        if (e.code === 'Space') {
+            e.preventDefault();
+            flipCard();
+        } else if (e.code === 'ArrowRight') {
+            nextCard();
+        } else if (e.code === 'ArrowLeft') {
+            prevCard();
+        }
+    });
+
+    buildDeck();
+    renderCard();
+})();
+</script>
+</body>
+</html>
